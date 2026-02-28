@@ -33,7 +33,7 @@ public sealed class TimeHandle
     private string ProcessSeconds(int sec)
     {
         if (sec == 0)
-            return "";
+            return "Wasn't start yet!\n";
 
         int hours = sec / 3600;
         int minutes = sec % 3600 / 60;
@@ -41,6 +41,6 @@ public sealed class TimeHandle
 
         return $"{(hours <= 0 ? string.Empty : $"{hours}h ")}" +
             $"{(minutes <= 0 ? string.Empty : $"{minutes}m ")}" +
-            $"{(seconds <= 0 ? string.Empty : $"{seconds}s")} passed!\n";
+            $"{(seconds <= 0 ? string.Empty : $"{seconds}s ")}passed!\n";
     }
 }

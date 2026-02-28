@@ -15,6 +15,8 @@ public sealed class TimeHandle
 
     public void SwitchState() => isPaused = !isPaused;
 
+    public void Reset() => timePassed = 0;
+
     public void Pass(int sec)
     {
         if (!isPaused)

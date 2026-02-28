@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
-using LLTC.Utils;
 
+using LLTC.Utils;
+using Microsoft.VisualBasic;
 using static LLTC.Utils.EState;
 
 namespace LLTC;
@@ -27,6 +29,8 @@ public static class Program
         output += "\n\n\n\n" + 
             "spacebar - switch timer state (if not in edit mode)\n" +
             "e - edit mode (when paused)\n" +
+            "c - add time to LLSA's today speaking time field (when paused)\n" +
+            "r - reset timer (when paused)\n" +
             "q - exit (if not in edit mode)\n";
         
         return output;
@@ -74,9 +78,24 @@ public static class Program
                         if (state == Pause)
                             ChangeState(Edit);
                         break;
+
+                    case ConsoleKey.C:
+                        if (state == Pause)
+                            ChangeState(Shout);
+                        break;
+                    
+                    case ConsoleKey.R:
+                        if (state == Pause)
+                        {
+                            tm.Reset();
+                            ChangeState(Pause);
+                        }
+                        break;
                 }
             }
         }).Start();
+    
+        ConfigManager.Init();
     }
 
     private static void ChangeState(EState newState)
@@ -98,8 +117,26 @@ public static class Program
                 break;
             
             case Edit:
-                int coefficient = IntegerInput("Enter procent to change 'time passed' parameter: ");
+                int coefficient = IntegerInput("Enter procent to change 'time passed' parameter (enter '100' to cancel): ");
                 tm.CorrectTimePassed(coefficient);
+
+                ChangeState(Pause);
+                break;
+            
+            case Shout:
+                string configPath = PathInput("Enter path to the LLSA compatible config file .\n" +
+                    "If input is empty program will use last used path: ");
+
+                var config = ConfigManager.Read(configPath);
+                
+                if (config.ContainsKey("TodayLanguageUseSecondCount"))
+                {
+                    int newValue = int.Parse(config["TodayLanguageUseSecondCount"]) + tm.TimePassed;
+
+                    config["TodayLanguageUseSecondCount"] = newValue.ToString();
+
+                    ConfigManager.Write(config, configPath);
+                }
 
                 ChangeState(Pause);
                 break;
@@ -121,6 +158,32 @@ public static class Program
             if (int.TryParse(Console.ReadLine(), out int input))
                 if (input >= 0)
                     return input;
+        }
+    }
+
+    private static string PathInput(string showTextOnConsole = "")
+    {
+        string? lastUsedPath = null;
+        try { lastUsedPath = ConfigManager.Read()["lastUsedPath"]; } catch { }
+    
+        while (true)
+        {
+            Console.Clear();
+            Console.Write(showTextOnConsole);
+
+            string input = Console.ReadLine() ?? "";
+
+            if (Path.Exists(input))
+            {
+                var config = ConfigManager.Read();
+                config["lastUsedPath"] = input;
+
+                ConfigManager.Write(config);
+
+                return input;
+            }
+            else if (lastUsedPath != null && Path.Exists(lastUsedPath))
+                return lastUsedPath;
         }
     }
 }

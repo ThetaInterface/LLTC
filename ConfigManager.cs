@@ -18,7 +18,11 @@ public static class ConfigManager
 
         if (!File.Exists(configPath)) 
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(configPath));
+            string configDir = Path.GetDirectoryName(configPath);
+
+            if (!Directory.Exists(configDir))
+                Directory.CreateDirectory(configDir);
+
             File.Create(configPath).Close();
         }
     }

@@ -16,8 +16,11 @@ public static class ConfigManager
     {
         configPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LLTC", CONFIG_FILE_NAME);
 
-        if (!File.Exists(configPath))
+        if (!File.Exists(configPath)) 
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(configPath));
             File.Create(configPath).Close();
+        }
     }
 
     public static Dictionary<string, string> Read(string? path = "default")

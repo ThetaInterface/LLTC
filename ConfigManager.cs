@@ -14,7 +14,7 @@ public static class ConfigManager
 
     public static void Init()
     {
-        configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, CONFIG_FILE_NAME);
+        configPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LLTC", CONFIG_FILE_NAME);
 
         if (!File.Exists(configPath))
             File.Create(configPath).Close();
